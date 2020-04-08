@@ -161,3 +161,173 @@ TEST(Unordered_Table_, can_change_cur_size_after_deleting_elem)
 	t.key_delete(13423);
 	EXPECT_EQ(1, t.get_cur_size());
 }
+
+TEST(Ordered_Table_, can_create_ordered_table)
+{
+	ASSERT_NO_THROW(Ordered_Table<Polinom> t);
+}
+
+TEST(Ordered_Table_, can_create_ordered_table_with_custom_max_size)
+{
+	ASSERT_NO_THROW(Ordered_Table<Polinom> t(17));
+}
+
+TEST(Ordered_Table_, can_push_elem_to_ordered_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	ASSERT_NO_THROW(t.key_push(123, p));
+}
+
+TEST(Ordered_Table_, cant_push_elem_with_same_key)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	t.key_push(123, p);
+	ASSERT_ANY_THROW(t.key_push(123, p));
+}
+
+TEST(Ordered_Table_, can_push_elem_to_additional_ordered_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 10; i++)
+		t.key_push(i, p);
+	ASSERT_NO_THROW(t.key_push(11, p));
+}
+
+TEST(Ordered_Table_, cant_push_elem_with_same_key_to_additional_order)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 13; i++)
+		t.key_push(i, p);
+	ASSERT_ANY_THROW(t.key_push(12, p));
+}
+
+TEST(Ordered_Table_, can_repack_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 15; i++)
+		t.key_push(i, p);
+	ASSERT_NO_THROW(t.key_push(16, p));
+}
+
+TEST(Ordered_Table_, can_find_elem_on_ordered_table_without_additional_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	t.key_push(123, p);
+	ASSERT_NO_THROW(t.key_find(123));
+}
+
+TEST(Ordered_Table_, can_find_elem_on_ordered_table_with_additional_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 11; i++)
+		t.key_push(i, p);
+	ASSERT_NO_THROW(t.key_find(7));
+}
+
+TEST(Ordered_Table_, can_find_elem_on_ordered_table_after_repacking)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 15; i++)
+		t.key_push(i, p);
+	s = "-xy-y";
+	p.create_pol(s);
+	t.key_push(16, p);
+	s = "-xy";
+	Polinom p1;
+	p1.create_pol(s);
+	EXPECT_EQ(true, p1 == t.key_find(3));
+}
+
+TEST(Ordered_Table_, can_delete_elem_from_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 5; i++)
+		t.key_push(i, p);
+	ASSERT_NO_THROW(t.key_delete(3));
+}
+
+TEST(Ordered_Table_, can_delete_elem_from_additional_table)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 13; i++)
+		t.key_push(i, p);
+	ASSERT_NO_THROW(t.key_delete(12));
+}
+
+TEST(Ordered_Table_, can_repack_table_after_deleting_an_elem)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 15; i++)
+		t.key_push(i, p);
+	t.key_delete(8);
+	t.key_delete(13);
+	t.key_push(16, p);
+	ASSERT_NO_THROW(t.key_push(17, p));
+}
+TEST(Ordered_Table_, cant_find_deleted_elem)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 1; i <= 15; i++)
+		t.key_push(i, p);
+	t.key_delete(8);
+	t.key_delete(13);
+	t.key_push(16, p);
+	t.key_push(17, p);
+	ASSERT_ANY_THROW(t.key_find(8));
+}
+
+TEST(Ordered_Table_, can_save_table_to_file)
+{
+	Ordered_Table<Polinom> t;
+	Polinom p;
+	string s = "-xy";
+	p.create_pol(s);
+	for (int i = 15; i >= 1; i--)
+		t.key_push(i, p);
+	string s1 = "C:\\Users\\Tom\\Desktop\\Polinom_test5.txt";
+	ASSERT_NO_THROW(t.push_table_to_file(s1));
+}
+
+TEST(Ordered_Table_, can_get_table_from_file)
+{
+	Ordered_Table<Polinom> t;
+	string s1 = "C:\\Users\\Tom\\Desktop\\Polinom_test5.txt";
+	t.get_table_from_file(s1);
+	ASSERT_NO_THROW(t.push_table_to_file(s1));
+}

@@ -197,4 +197,285 @@ public:
 	}
 
 };
+template <class ValType>
+class Ordered_Table : public Table<ValType>
+{
+private:
+	int *flag;
+	int *obl_flag;
+	int size_with_del;
+	Val_Collum<ValType> *obl_table;
+	int cur_size_obl_table;
+	void repacking() // доделать
+	{
+		if (size_with_del + cur_size_obl_table >= max_size)
+			max_size = 10 + max_size * 1.5;
+		Val_Collum<ValType> *end_table = new Val_Collum<ValType>[max_size];
+		int *end_flag = new int[max_size];
+		int i_cur_t = 0;
+		int i_obl_t = 0;
+		int i_end_t = 0;
+		while ((i_cur_t < size_with_del) && (i_obl_t < cur_size_obl_table))
+		{
+			if (flag[i_cur_t] == 1)
+			{
+				i_cur_t++;
+			}
+			else if (obl_flag[i_obl_t] == 1)
+			{
+				i_obl_t++;
+			}
+			else if (table[i_cur_t] < obl_table[i_obl_t])
+			{
+				end_table[i_end_t] = table[i_cur_t];
+				end_flag[i_end_t] = 0;
+				i_end_t++;
+				i_cur_t++;
+			}
+			else
+			{
+				end_table[i_end_t] = obl_table[i_obl_t];
+				end_flag[i_end_t] = 0;
+				i_end_t++;
+				i_obl_t++;
+				cur_size++;
+			}
+		}
+		while (i_cur_t < size_with_del)
+		{
+			if (flag[i_cur_t] == 1)
+			{
+				i_cur_t++;
+			}
+			else
+			{
+				end_table[i_end_t] = table[i_cur_t];
+				end_flag[i_end_t] = 0;
+				i_end_t++;
+				i_cur_t++;
+			}
+		}
+		while (i_obl_t < cur_size_obl_table)
+		{
+			if (obl_flag[i_obl_t] == 1)
+			{
+				i_obl_t++;
+			}
+			else
+			{
+				end_table[i_end_t] = obl_table[i_obl_t];
+				end_flag[i_end_t] = 0;
+				i_end_t++;
+				i_obl_t++;
+				cur_size++;
+			}
+		}
+		cur_size_obl_table = 0;
+		size_with_del = cur_size;
+		delete[] flag;
+		delete[] table;
+		table = end_table;
+		flag = end_flag;
+	}
+	void push_in_obl(Val_Collum<ValType> &inp)
+	{
+		if (cur_size_obl_table == 5)
+		{
+			repacking();
+		}
+		int i = 0;
+		while ((i < cur_size_obl_table) && (inp > obl_table[i]))
+			i++;
+		if (inp.key == obl_table[i].key)
+			throw 1;
+		int j = cur_size_obl_table - 1;
+		while (j >= i)
+		{
+			obl_table[j + 1] = obl_table[j];
+			obl_flag[j + 1] = obl_flag[j];
+			j--;
+		}
+		obl_table[i] = inp;
+		obl_flag[i] = 0;
+		cur_size_obl_table++;
+	}
+public:
+	Ordered_Table() : Table()
+	{
+		flag = new int[15];
+		obl_table = new Val_Collum<ValType>[5];
+		obl_flag = new int[5];
+		size_with_del = 0;
+		cur_size_obl_table = 0;
+	}
+	Ordered_Table(int inp_size) : Table(inp_size)
+	{
+		if (inp_size < 10)
+		{
+			max_size = 10;
+			delete[] table;
+			table = new Val_Collum<ValType>[10];
+		}
+		flag = new int[max_size];
+		obl_table = new Val_Collum<ValType>[5];
+		obl_flag = new int[5];
+		size_with_del = 0;
+		cur_size_obl_table = 0;
+	}
+	~Ordered_Table()
+	{
+		if (max_size != 0)
+			delete[] flag;
+		delete[] obl_flag;
+	}
+	ValType key_find(int inp_key)
+	{
+		if (cur_size == 0)
+			throw 1;
+		int left = 0;
+		int rigth = size_with_del - 1;
+		int midle = (rigth - left) / 2 + left;
+		while ((rigth >= left) && (inp_key != table[midle].key))
+		{
+			if (inp_key < table[midle].key)
+			{
+				rigth = midle - 1;
+				midle = (rigth - left) / 2 + left;
+			}
+			else
+			{
+				left = midle + 1;
+				midle = (rigth - left) / 2 + left;
+			}
+		}
+		if (rigth >= left)
+			return table[midle].val;
+		int i = 0;
+		while (i < cur_size_obl_table)
+		{
+			if (inp_key == obl_table[i].key)
+				return obl_table[i].val;
+			i++;
+		}
+		throw 1;
+	}
+	void key_push(int inp_key, ValType inp_val) // доделать
+	{
+		Val_Collum<ValType> inp_col = { inp_key, inp_val };
+		if ((size_with_del < 10))
+		{
+			if (size_with_del == 0)
+			{
+				table[0] = inp_col;
+				flag[0] = 0;
+				size_with_del++;
+				cur_size++;
+			}
+			else
+			{
+				int i = 0;
+				while ((i < size_with_del) && (inp_key > table[i].key))
+				{
+					i++;
+				}
+				if (inp_key == table[i].key)
+					throw 1;
+				int j = size_with_del - 1;
+				while (j >= i)
+				{
+					table[j + 1] = table[j];
+					flag[j + 1] = flag[j];
+					j--;
+				}
+				table[i] = inp_col;
+				flag[i] = 0;
+				size_with_del++;
+				cur_size++;
+			}
+		}
+		else
+		{
+			push_in_obl(inp_col);
+		}
+	}
+	void key_delete(int inp_key)
+	{
+		if (cur_size == 0)
+			throw 1;
+		int left = 0;
+		int rigth = size_with_del - 1;
+		int midle = (rigth - left) / 2 + left;
+		while ((rigth >= left) && (inp_key != table[midle].key))
+		{
+			if (inp_key < table[midle].key)
+			{
+				rigth = midle - 1;
+				midle = (rigth - left) / 2 + left;
+			}
+			else
+			{
+				left = midle + 1;
+				midle = (rigth - left) / 2 + left;
+			}
+		}
+		if (rigth >= left)
+		{
+			flag[midle] = 1;
+			return;
+		}
+		int i = 0;
+		while (i < cur_size_obl_table)
+		{
+			if (inp_key == obl_table[i].key)
+			{
+				obl_flag[i] = 1;
+				return;
+			}
+			i++;
+		}
+		throw 1;
+	}
+	void get_table_from_file(string s)
+	{
+
+		ifstream file;
+		file.open(s);
+		if (!file.is_open())
+			return;
+		string collum;
+		getline(file, collum);
+		if (max_size != 0)
+			delete[] table;
+		max_size = stoi(collum) + 10;
+		table = new Val_Collum<ValType>[max_size];
+		flag = new int[max_size];
+		int i = 0;
+		cur_size = 0;
+		size_with_del = 0;
+		while (!file.eof())
+		{
+			getline(file, collum);
+			Val_Collum<ValType> obl;
+			obl.get_from_string(collum);
+			key_push(obl.key, obl.val);
+			i++;
+		}
+		cur_size_obl_table = 0;
+		file.close();
+	}
+	void push_table_to_file(string s)
+	{
+		repacking();
+		ofstream file;
+		file.open(s, ios::trunc);
+		if (!file.is_open())
+			throw 1;
+		file << cur_size << '\n';
+		for (int i = 0; i < cur_size - 1; i++)
+			file << table[i].key << ';' << table[i].val.convert_to_string() << '\n';
+		file << table[cur_size - 1].key << ';' << table[cur_size - 1].val.convert_to_string();
+		file.close();
+	}
+};
+
 #endif
