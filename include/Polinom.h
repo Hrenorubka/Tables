@@ -17,7 +17,7 @@ using std::vector;
 using std::cin;
 using std::string;
 using std::queue;
-
+using std::to_string;
 
 
 struct Power
@@ -49,7 +49,7 @@ struct Power
 	}
 	bool operator>(Power &inp)
 	{
-		return (xyz > inp.xyz);	
+		return (xyz > inp.xyz);
 	}
 	bool operator<=(Power &inp)
 	{
@@ -92,6 +92,26 @@ struct Power
 		Power obl;
 		obl.xyz = xyz + inp.xyz;
 		return obl;
+	}
+	string convert_power_to_string()
+	{
+		string pow_s;
+		int obl = xyz;
+		int z_i = obl % 10;
+		obl = obl / 10;
+		int y_i = obl % 10;
+		obl = obl / 10;
+		int x_i = obl % 10;
+		char x_c = x_i + (int) '0';
+		char y_c = y_i + (int) '0';
+		char z_c = z_i + (int) '0';
+		if (x_i)
+			pow_s = pow_s + "x^" + x_c;
+		if (y_i)
+			pow_s = pow_s + "y^" + y_c;
+		if (z_i)
+			pow_s = pow_s + "z^" + z_c;
+		return pow_s;
 	}
 	friend std::ostream& operator<<(std::ostream& out, Power &inp)
 	{
@@ -210,7 +230,7 @@ private:
 		queue<int> cur_z;
 		string cur_coef;
 		int i = 0;
-		if (s[i] != '-')
+		if ((s[i] != '-') && (s[i] != '+'))
 			s = '+' + s;
 		while (i <= s.length())
 		{
@@ -535,7 +555,7 @@ public:
 			}
 			else if (step_first->val.power > step_second->val.power)
 			{
-				
+
 				sum.push_back(step_second->val, last_node_sum);
 				step_second = step_second->node;
 				last_node_sum = last_node_sum->node;
@@ -650,6 +670,20 @@ public:
 			obl.power = power[i];
 			push(obl);
 		}
+	}
+	string convert_to_string()
+	{
+		string res;
+		Node<Monom> *step_node = head_node->node;
+		while (step_node != head_node)
+		{
+			string obl = to_string(step_node->val.coef);
+			if (obl[0] != '-')
+				obl = '+' + obl;
+			res = res + obl + step_node->val.power.convert_power_to_string();
+			step_node = step_node->node;
+		}
+		return res;
 	}
 };
 

@@ -27,7 +27,7 @@ TEST(Polinom_, can_create_copy_of_polinom)
 TEST(Polinom_, can_push_elem)
 {
 	Polinom p;
-	Monom obl = {123, 3.14};
+	Monom obl = { 123, 3.14 };
 	ASSERT_NO_THROW(p.push(obl));
 }
 
@@ -70,7 +70,7 @@ TEST(Polinom_, can_compare_equal_polinom)
 TEST(Polinom_, can_compare_nonequal_polinom)
 {
 	string s = "-x+y";
-	Polinom p1(s), p2(s+"+z");
+	Polinom p1(s), p2(s + "+z");
 	EXPECT_EQ(true, p1 != p2);
 }
 
@@ -112,4 +112,13 @@ TEST(Polinom_, can_do_operation_mult_with_polynomial)
 	string s = "xyz";
 	p.create_pol(s);
 	ASSERT_NO_THROW(p * p);
+}
+
+TEST(Polinom_, can_convert_Polinom_to_string)
+{
+	Polinom p;
+	string s = "xyz";
+	p.create_pol(s);
+	s = "+1.000000x^1y^1z^1";
+	EXPECT_EQ(s, p.convert_to_string());
 }
