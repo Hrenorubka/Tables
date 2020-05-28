@@ -135,6 +135,24 @@ public:
 		return obl_step->val;
 
 	}
+	virtual Node<ValType>* find_prev(ValType val)
+	{
+		if (head_node == NULL)
+			return NULL;
+		if (head_node->node == NULL)
+			return NULL;
+		Node<ValType> *obl_step_prev = head_node;
+		Node<ValType> *obl_step = head_node->node;
+		while ((obl_step != NULL) && (obl_step->val != val))
+		{
+			obl_step = obl_step->node;
+			obl_step_prev = obl_step_prev->node;
+		}
+		if (obl_step == NULL)
+			return NULL;
+		return obl_step_prev;
+	}
+	/*
 	virtual void print()
 	{
 		Node<ValType> *step_head = head_node;
@@ -143,7 +161,7 @@ public:
 			cout << step_head->val << ' ';
 			step_head = step_head->node;
 		}
-	}
+	}*/
 	int get_size()
 	{
 		return size;
@@ -154,7 +172,7 @@ public:
 	}
 	Node<ValType>* get_head()
 	{
-		return *head_node;
+		return head_node;
 	}
 };
 #endif
