@@ -1,6 +1,6 @@
 #include <gtest.h>
 #include <Table.h>
-
+/*
 TEST(Val_Collum_, can_create_collum)
 {
 	ASSERT_NO_THROW(Val_Collum<Polinom> col);
@@ -331,7 +331,7 @@ TEST(Ordered_Table_, can_get_table_from_file)
 	t.get_table_from_file(s1);
 	ASSERT_NO_THROW(t.push_table_to_file(s1));
 }
-
+ */
 TEST(Hash_Table_, can_create_hash)
 {
 	ASSERT_NO_THROW(Hash_Table<Polinom> t);

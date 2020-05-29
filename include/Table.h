@@ -490,14 +490,16 @@ public:
 	}
 };
 template <class ValType>
-class Hash_Table : public Table<ValType>
+class Hash_Table
 {
 private:
+	int cur_size;
+	int max_size;
+	List<Val_Collum<ValType>> *table;
 	int a;
 	int b;
 	int p;
 	int size_hash;
-	List<Val_Collum<ValType>> *hash_t;
 	int find_prime_numb(int m)
 	{
 		bool fl = true;
@@ -519,25 +521,20 @@ private:
 	}
 	void create_hash()
 	{
-		if (hash_t != NULL)
-			delete[] hash_t;
+		if (table != NULL)
+			delete[] table;
 		if (max_size == 0)
 			throw 1;
 		size_hash = max_size * max_size;
-		hash_t = new List<Val_Collum< ValType > >[size_hash];
+		table = new List<Val_Collum< ValType > >[size_hash];
 		srand(time(NULL));
 		a = rand() % 35 + 1;
 		b = rand() % 35 + 1;
 		p = find_prime_numb(max_size);
-		for (int i = 0; i < cur_size; i++)
-		{
-			int numb = ((a * table[i].key + b) % p) % size_hash;
-			hash_t[numb].push_front(table[i]);
-		}
 	}
 	Node<Val_Collum<ValType>>* key_find_prev(int inp_key, int numb)
 	{
-		Node<Val_Collum <ValType> > *step = hash_t[numb].get_head();
+		Node<Val_Collum <ValType> > *step = table[numb].get_head();
 		if (step == NULL)
 			return NULL;
 		if (step->node == NULL)
@@ -553,55 +550,46 @@ private:
 		return NULL;
 	}
 public:
-	Hash_Table() : Table()
+	Hash_Table()
 	{
-		hash_t = NULL;
-
+		max_size = 15;
+		cur_size = 0;
+		table = NULL;
 		create_hash();
 	}
-	Hash_Table(int size) : Table(size)
+	Hash_Table(int size)
 	{
-		hash_t = NULL;
+		max_size = size;
+		cur_size = 0;
+		table = NULL;
 		create_hash();
 	}
 	~Hash_Table()
 	{
-		if (hash_t != NULL)
-			delete[] hash_t;
+		if (table != NULL)
+			delete[] table;
 	}
 	void key_push(int inp_key, ValType inp_val)
 	{
-		if (cur_size == max_size)
-		{
-			repacking();
-			if (max_size + 20 > sqrt(2 * size_hash))
-				create_hash();
-		}
-		table[cur_size].key = inp_key;
-		table[cur_size].val = inp_val;
-		int numb = ((a * table[cur_size].key + b) % p) % size_hash;
-		hash_t[numb].push_front(table[cur_size]);
+		int numb = ((a * inp_key + b) % p) % size_hash;
+		table[numb].push_front( {inp_key, inp_val} );
 		cur_size++;
 	}
 	
 	void key_delete(int inp_key)
 	{
-		int i;
-		for (i = 0; (i < cur_size) && (inp_key != table[i].key); i++);
-		if (i == cur_size)
-			throw 1;
 		cur_size--;
 		int numb = ((a * inp_key + b) % p) % size_hash;
 		Node<Val_Collum<ValType>> *step = key_find_prev(inp_key, numb);
 		if (step == NULL)
 		{
-			if (hash_t[numb].get_head() == NULL)
+			if (table[numb].get_head() == NULL)
 				throw 1;
 			else
-				hash_t[numb].pop_front();
+				table[numb].pop_front();
 		}
 		else
-			hash_t[numb].remove(step);
+			table[numb].remove(step);
 	}
 	
 	ValType key_find(int inp_key)
@@ -610,10 +598,10 @@ public:
 		Node<Val_Collum<ValType>> *step = key_find_prev(inp_key, numb);
 		if (step == NULL)
 		{
-			if (hash_t[numb].get_head() == NULL)
+			if (table[numb].get_head() == NULL)
 				throw 1;
-			else if (hash_t[numb].get_head()->val.key == inp_key)
-				return hash_t[numb].get_head()->val.val;
+			else if (table[numb].get_head()->val.key == inp_key)
+				return table[numb].get_head()->val.val;
 			else throw 1;
 		}
 		else
@@ -621,5 +609,6 @@ public:
 			return step->node->val.val;
 		}
 	}
+
 };
 #endif;
